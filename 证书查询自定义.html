@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>证书查询 - 管理员控制版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: #f0f0f0;
+            padding: 20px;
+            position: relative;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .header h1 {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .header .website {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 30px;
+            height: 30px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .more-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .certificate-content {
+            padding: 30px;
+            position: relative;
+            min-height: 600px;
+        }
+        
+        .certificate-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M10,10 Q25,0 50,10 T90,10" fill="none" stroke="%23f0f0f0" stroke-width="1"/></svg>');
+            opacity: 0.4;
+            z-index: 0;
+            background-repeat: repeat;
+        }
+        
+        .certificate-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .certificate-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .certificate-number {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .certificate-info {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .info-item {
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+        
+        .info-label {
+            display: inline-block;
+            width: 80px;
+            color: #666;
+            font-weight: normal;
+        }
+        
+        .info-value {
+            color: #333;
+            font-weight: normal;
+        }
+        
+        .learning-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .section-title {
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+        
+        .content-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .course-number {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 24px;
+            height: 24px;
+            background-color: #d4af37;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .course-info {
+            margin-left: 30px;
+        }
+        
+        .course-name {
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .course-details {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* 表单样式 */
+        .customize-panel {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: none; /* 默认隐藏自定义面板 */
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .form-group input, .form-group textarea {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+        
+        /* 登录样式 */
+        .login-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: none; /* 默认隐藏登录面板 */
+        }
+        
+        .login-panel h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .login-form .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .login-form .btn-primary {
+            width: 100%;
+        }
+        
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        /* 管理员控制按钮 */
+        .admin-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        
+        .btn-admin {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-admin:hover {
+            background-color: #0b7dda;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 5px;
+            }
+            
+            .certificate-content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 16px;
+            }
+            
+            .certificate-title {
+                font-size: 14px;
+            }
+            
+            .info-item, .section-title, .course-name {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="close-btn">×</button>
+            <h1 id="header-title">证书查询</h1>
+            <div class="website" id="website">www.jxjyedu.org.cn</div>
+            <button class="more-btn">⋯</button>
+        </div>
+        
+        <div class="certificate-content">
+            <div class="certificate-header">
+                <div class="certificate-title" id="certificate-title">2025年度河南省专业技术人员继续教育公需科目网络学习学时证明</div>
+                <div class="certificate-number">证书编号：<span id="certificate-number">XH41250535081</span></div>
+            </div>
+            
+            <div class="certificate-info">
+                <div class="info-item">姓名：<span class="info-value" id="name">王一晓</span></div>
+                <div class="info-item">完成学时：<span class="info-value" id="hours">30</span></div>
+                <div class="info-item">联系方式：<span class="info-value" id="contact">15649009920</span></div>
+                <div class="info-item">身份证号码：<span class="info-value" id="id-number">654126199305284724</span></div>
+                <div class="info-item">工作单位：<span class="info-value" id="work-unit">中原科技学院</span></div>
+            </div>
+            
+            <div class="learning-content">
+                <div class="section-title">学习内容</div>
+                <div class="content-item">
+                    <div class="course-number">1</div>
+                    <div class="course-info">
+                        <div class="course-name" id="course-name">2025年度公需课</div>
+                        <div class="course-details">完成时间：<span id="complete-date">2025-09-15</span> 学时：<span id="course-hours">30</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 管理员控制按钮 -->
+        <div class="admin-controls">
+            <button class="btn-admin" id="login-btn">管理员登录</button>
+        </div>
+        
+        <!-- 登录面板 -->
+        <div class="login-overlay" id="login-overlay"></div>
+        <div class="login-panel" id="login-panel">
+            <h2>管理员登录</h2>
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="admin-username">用户名</label>
+                    <input type="text" id="admin-username" placeholder="请输入管理员用户名">
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">密码</label>
+                    <input type="password" id="admin-password" placeholder="请输入管理员密码">
+                </div>
+                <button class="btn-primary" id="submit-login">登录</button>
+                <div id="login-error" style="color: red; text-align: center; margin-top: 10px; display: none;">用户名或密码错误</div>
+            </div>
+        </div>
+        
+        <!-- 自定义内容面板（仅管理员可见） -->
+        <div class="customize-panel" id="customize-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #333;">自定义证书内容</h3>
+                <button class="btn-primary" id="logout-btn" style="background-color: #f44336;">退出登录</button>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="user-select">选择用户：</label>
+                <select id="user-select">
+                    <option value="default">默认用户</option>
+                    <option value="zhangsan">张三</option>
+                    <option value="lisi">李四</option>
+                    <option value="wangwu">王五</option>
+                    <option value="new">添加新用户</option>
+                </select>
+                <input type="text" id="new-username" placeholder="输入新用户名" style="display: none; margin-left: 10px; padding: 5px;">
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="input-header-title">页面标题</label>
+                    <input type="text" id="input-header-title" value="证书查询">
+                </div>
+                <div class="form-group">
+                    <label for="input-website">网站地址</label>
+                    <input type="text" id="input-website" value="www.jxjyedu.org.cn">
+                </div>
+                <div class="form-group">
+                    <label for="input-certificate-title">证书标题</label>
+                    <textarea id="input-certificate-title">2025年度河南省专业技术人员继续教育公需科目网络学习学时证明</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="input-certificate-number">证书编号</label>
+                    <input type="text" id="input-certificate-number" value="XH41250535081">
+                </div>
+                <div class="form-group">
+                    <label for="input-name">姓名</label>
+                    <input type="text" id="input-name" value="王一晓">
+                </div>
+                <div class="form-group">
+                    <label for="input-hours">完成学时</label>
+                    <input type="text" id="input-hours" value="30">
+                </div>
+                <div class="form-group">
+                    <label for="input-contact">联系方式</label>
+                    <input type="text" id="input-contact" value="15649009920">
+                </div>
+                <div class="form-group">
+                    <label for="input-id-number">身份证号码</label>
+                    <input type="text" id="input-id-number" value="654126199305284724">
+                </div>
+                <div class="form-group">
+                    <label for="input-work-unit">工作单位</label>
+                    <input type="text" id="input-work-unit" value="中原科技学院">
+                </div>
+                <div class="form-group">
+                    <label for="input-course-name">课程名称</label>
+                    <input type="text" id="input-course-name" value="2025年度公需课">
+                </div>
+                <div class="form-group">
+                    <label for="input-complete-date">完成时间</label>
+                    <input type="text" id="input-complete-date" value="2025-09-15">
+                </div>
+                <div class="form-group">
+                    <label for="input-course-hours">课程学时</label>
+                    <input type="text" id="input-course-hours" value="30">
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn-primary" id="update-btn">更新证书内容</button>
+                <button class="btn-primary" id="generate-link-btn">生成用户访问链接</button>
+            </div>
+            <div id="user-link" style="margin-top: 15px; padding: 10px; background-color: #e8f5e9; border-radius: 4px; display: none;">
+                <p style="margin: 0; color: #333;">用户访问链接：</p>
+                <input type="text" id="generated-link" readonly style="width: 100%; margin-top: 5px; padding: 8px; font-size: 12px;">
+                <button class="btn-primary" id="copy-link-btn" style="margin-top: 5px; font-size: 12px; padding: 5px 10px;">复制链接</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 存储用户数据
+        const userData = {
+            'default': {
+                headerTitle: '证书查询',
+                website: 'www.jxjyedu.org.cn',
+                certificateTitle: '2025年度河南省专业技术人员继续教育公需科目网络学习学时证明',
+                certificateNumber: 'XH41250535081',
+                name: '王一晓',
+                hours: '30',
+                contact: '15649009920',
+                idNumber: '654126199305284724',
+                workUnit: '中原科技学院',
+                courseName: '2025年度公需课',
+                completeDate: '2025-09-15',
+                courseHours: '30'
+            },
+            'zhangsan': {
+                headerTitle: '证书查询',
+                website: 'www.jxjyedu.org.cn',
+                certificateTitle: '2025年度河南省专业技术人员继续教育公需科目网络学习学时证明',
+                certificateNumber: 'XH41250535082',
+                name: '张三',
+                hours: '40',
+                contact: '13800138001',
+                idNumber: '410101199001011234',
+                workUnit: '河南省第一中学',
+                courseName: '2025年度公需课',
+                completeDate: '2025-09-10',
+                courseHours: '40'
+            },
+            'lisi': {
+                headerTitle: '证书查询',
+                website: 'www.jxjyedu.org.cn',
+                certificateTitle: '2025年度河南省专业技术人员继续教育公需科目网络学习学时证明',
+                certificateNumber: 'XH41250535083',
+                name: '李四',
+                hours: '35',
+                contact: '13900139001',
+                idNumber: '410101199102022345',
+                workUnit: '河南省第二医院',
+                courseName: '2025年度公需课',
+                completeDate: '2025-09-12',
+                courseHours: '35'
+            },
+            'wangwu': {
+                headerTitle: '证书查询',
+                website: 'www.jxjyedu.org.cn',
+                certificateTitle: '2025年度河南省专业技术人员继续教育公需科目网络学习学时证明',
+                certificateNumber: 'XH41250535084',
+                name: '王五',
+                hours: '30',
+                contact: '13700137001',
+                idNumber: '410101199203033456',
+                workUnit: '河南省第三研究院',
+                courseName: '2025年度公需课',
+                completeDate: '2025-09-14',
+                courseHours: '30'
+            }
+        };
+        
+        // 管理员凭证（实际应用中应使用更安全的方式）
+        const adminCredentials = {
+            username: 'admin',
+            password: 'admin123' // 实际应用中应使用加密存储
+        };
+        
+        // 当前登录状态
+        let isAdminLoggedIn = false;
+        let currentUser = 'default';
+        
+        // 从URL获取用户参数
+        function getUserFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userParam = urlParams.get('user');
+            if (userParam && userData[userParam]) {
+                return userParam;
+            }
+            return 'default';
+        }
+        
+        // 加载用户数据
+        function loadUserData(userId) {
+            if (!userData[userId]) {
+                userId = 'default';
+            }
+            
+            const user = userData[userId];
+            
+            // 更新证书显示内容
+            document.getElementById('header-title').textContent = user.headerTitle;
+            document.getElementById('website').textContent = user.website;
+            document.getElementById('certificate-title').textContent = user.certificateTitle;
+            document.getElementById('certificate-number').textContent = user.certificateNumber;
+            document.getElementById('name').textContent = user.name;
+            document.getElementById('hours').textContent = user.hours;
+            document.getElementById('contact').textContent = user.contact;
+            document.getElementById('id-number').textContent = user.idNumber;
+            document.getElementById('work-unit').textContent = user.workUnit;
+            document.getElementById('course-name').textContent = user.courseName;
+            document.getElementById('complete-date').textContent = user.completeDate;
+            document.getElementById('course-hours').textContent = user.courseHours;
+            
+            // 如果是管理员登录状态，更新表单
+            if (isAdminLoggedIn) {
+                document.getElementById('input-header-title').value = user.headerTitle;
+                document.getElementById('input-website').value = user.website;
+                document.getElementById('input-certificate-title').value = user.certificateTitle;
+                document.getElementById('input-certificate-number').value = user.certificateNumber;
+                document.getElementById('input-name').value = user.name;
+                document.getElementById('input-hours').value = user.hours;
+                document.getElementById('input-contact').value = user.contact;
+                document.getElementById('input-id-number').value = user.idNumber;
+                document.getElementById('input-work-unit').value = user.workUnit;
+                document.getElementById('input-course-name').value = user.courseName;
+                document.getElementById('input-complete-date').value = user.completeDate;
+                document.getElementById('input-course-hours').value = user.courseHours;
+            }
+        }
+        
+        // 更新证书内容的函数
+        function updateCertificate() {
+            if (!isAdminLoggedIn) return;
+            
+            // 获取表单输入值
+            const headerTitle = document.getElementById('input-header-title').value;
+            const website = document.getElementById('input-website').value;
+            const certificateTitle = document.getElementById('input-certificate-title').value;
+            const certificateNumber = document.getElementById('input-certificate-number').value;
+            const name = document.getElementById('input-name').value;
+            const hours = document.getElementById('input-hours').value;
+            const contact = document.getElementById('input-contact').value;
+            const idNumber = document.getElementById('input-id-number').value;
+            const workUnit = document.getElementById('input-work-unit').value;
+            const courseName = document.getElementById('input-course-name').value;
+            const completeDate = document.getElementById('input-complete-date').value;
+            const courseHours = document.getElementById('input-course-hours').value;
+            
+            // 更新用户数据
+            userData[currentUser] = {
+                headerTitle,
+                website,
+                certificateTitle,
+                certificateNumber,
+                name,
+                hours,
+                contact,
+                idNumber,
+                workUnit,
+                courseName,
+                completeDate,
+                courseHours
+            };
+            
+            // 保存到本地存储
+            localStorage.setItem('certificateUserData', JSON.stringify(userData));
+            
+            // 更新证书显示
+            loadUserData(currentUser);
+            
+            // 显示更新成功的提示
+            alert('证书内容已更新成功！');
+        }
+        
+        // 切换用户
+        function switchUser() {
+            const userSelect = document.getElementById('user-select');
+            const selectedUser = userSelect.value;
+            
+            if (selectedUser === 'new') {
+                document.getElementById('new-username').style.display = 'inline-block';
+            } else {
+                document.getElementById('new-username').style.display = 'none';
+                currentUser = selectedUser;
+                loadUserData(selectedUser);
+            }
+        }
+        
+        // 添加新用户
+        function addNewUser() {
+            const newUsernameInput = document.getElementById('new-username');
+            const newUsername = newUsernameInput.value.trim();
+            
+            if (newUsername && !userData[newUsername]) {
+                // 创建新用户，复制默认用户的数据
+                userData[newUsername] = JSON.parse(JSON.stringify(userData['default']));
+                userData[newUsername].name = newUsername; // 将用户名称设置为用户名
+                
+                // 添加到选择框
+                const userSelect = document.getElementById('user-select');
+                const option = document.createElement('option');
+                option.value = newUsername;
+                option.textContent = newUsername;
+                userSelect.appendChild(option);
+                
+                // 切换到新用户
+                userSelect.value = newUsername;
+                currentUser = newUsername;
+                loadUserData(newUsername);
+                
+                // 重置输入框
+                newUsernameInput.value = '';
+                newUsernameInput.style.display = 'none';
+                
+                // 保存到本地存储
+                localStorage.setItem('certificateUserData', JSON.stringify(userData));
+                
+                alert('新用户已添加！');
+            } else if (userData[newUsername]) {
+                alert('用户名已存在！');
+            } else {
+                alert('请输入有效的用户名！');
+            }
+        }
+        
+        // 生成用户访问链接
+        function generateUserLink() {
+            if (!isAdminLoggedIn) return;
+            
+            const baseUrl = window.location.origin + window.location.pathname;
+            const userLink = baseUrl + '?user=' + currentUser;
+            
+            document.getElementById('generated-link').value = userLink;
+            document.getElementById('user-link').style.display = 'block';
+        }
+        
+        // 复制链接到剪贴板
+        function copyLink() {
+            const linkInput = document.getElementById('generated-link');
+            linkInput.select();
+            document.execCommand('copy');
+            alert('链接已复制到剪贴板！');
+        }
+        
+        // 管理员登录
+        function adminLogin() {
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            
+            if (username === adminCredentials.username && password === adminCredentials.password) {
+                isAdminLoggedIn = true;
+                document.getElementById('login-panel').style.display = 'none';
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('customize-panel').style.display = 'block';
+                document.getElementById('login-btn').textContent = '已登录';
+                document.getElementById('login-btn').disabled = true;
+                
+                // 加载当前用户数据到表单
+                loadUserData(currentUser);
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('login-error').style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // 管理员退出登录
+        function adminLogout() {
+            isAdminLoggedIn = false;
+            document.getElementById('customize-panel').style.display = 'none';
+            document.getElementById('login-btn').textContent = '管理员登录';
+            document.getElementById('login-btn').disabled = false;
+            document.getElementById('user-link').style.display = 'none';
+        }
+        
+        // 显示登录面板
+        function showLoginPanel() {
+            document.getElementById('login-panel').style.display = 'block';
+            document.getElementById('login-overlay').style.display = 'block';
+        }
+        
+        // 隐藏登录面板
+        function hideLoginPanel() {
+            document.getElementById('login-panel').style.display = 'none';
+            document.getElementById('login-overlay').style.display = 'none';
+        }
+        
+        // 初始化
+        function init() {
+            // 从本地存储加载用户数据
+            const savedUserData = localStorage.getItem('certificateUserData');
+            if (savedUserData) {
+                try {
+                    Object.assign(userData, JSON.parse(savedUserData));
+                } catch (e) {
+                    console.error('Failed to load user data from localStorage:', e);
+                }
+            }
+            
+            // 获取URL中的用户参数
+            currentUser = getUserFromUrl();
+            
+            // 加载用户数据
+            loadUserData(currentUser);
+            
+            // 添加事件监听器
+            document.getElementById('update-btn').addEventListener('click', updateCertificate);
+            document.getElementById('login-btn').addEventListener('click', showLoginPanel);
+            document.getElementById('submit-login').addEventListener('click', adminLogin);
+            document.getElementById('logout-btn').addEventListener('click', adminLogout);
+            document.getElementById('login-overlay').addEventListener('click', hideLoginPanel);
+            document.getElementById('user-select').addEventListener('change', switchUser);
+            document.getElementById('new-username').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addNewUser();
+                }
+            });
+            document.getElementById('generate-link-btn').addEventListener('click', generateUserLink);
+            document.getElementById('copy-link-btn').addEventListener('click', copyLink);
+            
+            // 添加关闭按钮的点击事件
+            document.getElementById('close-btn').addEventListener('click', function() {
+                if (confirm('确定要关闭页面吗？')) {
+                    window.close();
+                }
+            });
+            
+            // 添加更多按钮的点击事件
+            document.getElementById('more-btn').addEventListener('click', function() {
+                alert('更多选项功能待实现');
+            });
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
